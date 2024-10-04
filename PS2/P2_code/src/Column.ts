@@ -92,6 +92,28 @@ export class Column extends Group {
     // Our height is set to the height determined by stacking our children vertically.
     protected override _doLocalSizing() : void {
         //=== YOUR CODE HERE ===
+        let sum_min = 0;
+        let sum_nat = 0;
+        let sum_max = 0;
+
+        let width_max = 0;
+        let width_nat = 0;
+        let width_min = 0;
+
+        for(let child of this.children){
+            // get the sum of all children mins, maxes, naturals
+            sum_min += child.hConfig.min;
+            sum_nat += child.hConfig.nat;
+            sum_max += child.hConfig.max;
+            //get maximum of the child mins, max of naturals, and max of mins
+            width_max = Math.max(width_max, child.wConfig.max);
+            width_nat = Math.max(width_nat, child.wConfig.nat);
+            width_min = Math.max(width_min, child.wConfig.min);
+        }
+        //now setting the wconfig and hconfing
+        this._hConfig = new SizeConfig(sum_nat, sum_min, sum_max);
+        this._wConfig = new SizeConfig(width_nat, width_min, width_max);
+
     }
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -156,6 +178,17 @@ export class Column extends Group {
         let numSprings = 0; 
 
         //=== YOUR CODE HERE ===
+        for(let child of this.children){
+            if(child instanceof Spring){
+                //count in if child is spring
+                numSprings++;
+            }else{
+                //accumulate the sum of nat if child is non-spring object
+                natSum += child.hConfig.nat;
+                //accumulate the sum of how much objects can compress
+                availCompr += (child.hConfig.nat- child.hConfig.min);
+            }
+        }
 
         return [natSum, availCompr, numSprings];
     }
@@ -168,6 +201,16 @@ export class Column extends Group {
     // the space at the bottom of the column as a fallback strategy).
     protected _expandChildSprings(excess : number, numSprings : number) : void {
         //=== YOUR CODE HERE ===
+        //check if there is any child spring
+        if(numSprings>0){
+            for(let child of this.children){
+                //allocate the vertical space between springs
+                let avg = excess/numSprings;
+                if(child instanceof Spring){
+                    child.h = avg;
+                }
+            }
+        }
     }
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -188,6 +231,17 @@ export class Column extends Group {
         // from the natural height of that child, to get the assigned height.
         for (let child of this.children) {
             //=== YOUR CODE HERE ===
+            //need to check if the object can be compressed and not over-compressed
+            if (!(child instanceof Spring) && child.hConfig.nat > child.hConfig.min) {
+                let compress = child.hConfig.nat - child.hConfig.min;
+                let faction = compress / availCompr;
+                let reduction = faction * shortfall;
+                //apply compression to the object 
+                //Question/to improve: do i need to also make sure the new child.h does not go
+                //below the min height of the object?
+                // child.h -= reduction;
+                child.h = Math.max(child.hConfig.min, child.h-reduction);
+            }
         }
 }
 
@@ -232,6 +286,26 @@ export class Column extends Group {
         // apply our justification setting for the horizontal
         
         //=== YOUR CODE HERE ===
+        //justify objects depending their status on their wJustification
+        for (let child of this.children) {
+            //if child's at the left corner of its parent, we are all set
+            if(this._wJustification ==='left'){
+                child.x = 0;
+            // if child is located at the center of the parent, its x coordinate is
+            // calculated by the space between parent's width and child's width and 
+            //devided by 2
+            }else if(this._wJustification ==='center'){
+                child.x = (this.w - child.w)/2;
+            // if child is located at the right of the parent, its x coordinate is
+            // calculated by the space between parent's width and child's width
+            }else if(this._wJustification ==='right'){
+                child.x = this.w - child.w;
+            }
+        }
+        
+    
+
+
     }
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

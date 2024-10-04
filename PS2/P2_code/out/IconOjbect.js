@@ -75,6 +75,18 @@ export class IconObject extends DrawnObjectBase {
     get resizesImage() { return this._resizesImage; }
     set resizesImage(v) {
         //=== YOUR CODE HERE ===
+        //if _resizesImage = false, resize object size
+        if (this._resizesImage !== v) {
+            this._resizesImage = v;
+            //need to redraw  
+            this.damageAll();
+            //check if resizesImage=false, image is loaded and _image is valid
+            if (!this.resizesImage && this._image && this._image.loaded) {
+                this._resize();
+            }
+            else if (this.resizesImage && this._image && this._image.loaded) { //if resizesImage= true
+            }
+        }
     }
     //-------------------------------------------------------------------
     // Methods
@@ -82,6 +94,15 @@ export class IconObject extends DrawnObjectBase {
     // If our size is determined by the image, resize us to match (otherwise do nothing).
     _resize() {
         //=== YOUR CODE HERE ===
+        //here the condition checking i only checked if this._image is defined and this._image.canvasImage
+        //is valid/loaded. I feel it is unnessecary to check !this.resizesImage or this._image.loaded
+        //again since i checked it in _resizesImage setter.
+        if (this._image && this._image.canvasImage) {
+            this.w = this._image.canvasImage.width;
+            this.h = this._image.canvasImage.height;
+            //to redraw
+            this.damageAll();
+        }
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
     // Function that is called when our loading is complete
@@ -106,9 +127,13 @@ export class IconObject extends DrawnObjectBase {
             return;
         if (this.resizesImage) {
             //=== YOUR CODE HERE ===
+            //draw image that resized to object size
+            ctx.drawImage(this.image.canvasImage, 0, 0, this.w, this.h);
         }
         else {
             //=== YOUR CODE HERE ===
+            //here to set object size to image size
+            ctx.drawImage(this.image.canvasImage, 0, 0);
         }
     }
 } // end of IconObject class

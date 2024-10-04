@@ -70,6 +70,8 @@ export class TopObject extends DrawnObjectBase {
     // For this object we clear the canvas behind the children that we draw
     _drawSelfOnly(ctx) {
         //=== YOUR CODE HERE ===
+        //clear canvas
+        ctx.clearRect(0, 0, this._w, this._h);
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
     // Override the _findTop() method so to returns this object as the top we have been
@@ -115,17 +117,21 @@ export class TopObject extends DrawnObjectBase {
             try {
                 // we don't have a parent to do the following for us, so we do it 
                 // ourselves...
+                //=== YOUR CODE HERE ===
+                //applyclip(0,0)
                 // clip to our bounds
+                this.applyClip(this.canvasContext, 0, 0, this.w, this.h);
                 //=== YOUR CODE HERE ===
                 // within our bounds clip to just the damaged region
-                //=== YOUR CODE HERE ===
+                this.applyClip(this.canvasContext, this._damageRectX, this._damageRectY, this._damageRectW, this._damageRectH);
                 // after this we will no longer be damaged, so reset our damage tracking
                 // rectangle to be our whole bounds
                 this._damageRectX = this._damageRectY = 0;
                 this._damageRectW = this.w;
                 this._damageRectH = this.h;
-                // do the actual drawing from here down the tree
                 //=== YOUR CODE HERE ===
+                // do the actual drawing from here down the tree
+                this.draw(this.canvasContext);
             }
             catch (err) {
                 // catch any exception thrown and echo the message, but then 
@@ -155,6 +161,28 @@ export class TopObject extends DrawnObjectBase {
     // damage instead of passing it up the tree (since there is no up  from here).
     damageArea(xv, yv, wv, hv) {
         //=== YOUR CODE HERE ===
+        //assign damaged area
+        if (!this._damaged) {
+            this._damageRectX = xv;
+            this._damageRectY = yv;
+            this._damageRectW = wv;
+            this._damageRectH = hv;
+        }
+        else {
+            //get the area that covers old damaged area and the new one
+            //get top right corner of this damaged ractangle
+            this._damageRectX = Math.min(this._damageRectX, xv);
+            this._damageRectY = Math.min(this._damageRectY, yv);
+            //to get the  bottom right corner of this damaged rectangle.
+            const max_X = Math.max(this._damageRectX + this._damageRectW, xv + wv);
+            const max_Y = Math.max(this._damageRectY + this._damageRectH, yv + hv);
+            //get the width of the damaged area
+            this._damageRectW = max_X - this._damageRectX;
+            this._damageRectH = max_Y - this._damageRectY;
+        }
+        //after assign
+        this._damaged = true;
+        //
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  
     // Special routine to declare that damage has occured due to asynchronous

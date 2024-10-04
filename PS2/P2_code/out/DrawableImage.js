@@ -91,7 +91,7 @@ _a = DrawableImage;
 //xx MISSING_IMAGE is not working yet...
 // URI to provide a "missing/not-yet-loaded" image from in-program data
 // This is a 50x50 generic "this will be an image" icon in PNG format
-DrawableImage.missingImageURI = "data:image/png;base64," +
+DrawableImage.missingImageURI = " "; /* "data:image/png;base64," +
     "iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAAXNSR0IArs4c6QAAAAR" +
     "nQU1BAACxjwv8YQUAAACuUExURf////Hx8djY2NnZ2erq6ufn57m5uby8vNzc3Ojo6L" +
     "+/v729vd3d3cHBwdDQ0NHR0cPDw76+vsbGxvv7+8/Pz87Ozvr6+v7+/vj4+NPT083Nz" +
@@ -104,7 +104,7 @@ DrawableImage.missingImageURI = "data:image/png;base64," +
     "Q/s5wt+rVOh0rUTYA3Y6IV7QY4BaAVQxd1xSz4M9b2AQfivHSnmEVb4HOgLKqTQIVT/" +
     "YMp5iwvhAePk4IXRUBQ5vhlERJGDxvwyluARjFhNhAfTWwzYYyjJKAzkHZ/ZCvGF828" +
     "3h5xQyjROtcoh5muOkXkKOkN4wn+4ZZNd6Kae+/x3ApS8A9tK+Uc1A++bPKDz6v/eS9" +
-    "Ans4v8YIT4AIHBHOdb9iJIAAAAASUVORK5CYII=";
+    "Ans4v8YIT4AIHBHOdb9iJIAAAAASUVORK5CYII="; */
 // In-memory image that can be used as a stand in for missing/non-yet-loaded images
 // This is a 50x50 pixel image from the data in DrawableImage.missingImageURI
 DrawableImage.MISSING_IMAGE = new Image(50, 50);

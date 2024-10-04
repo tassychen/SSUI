@@ -91,7 +91,28 @@ export class Row extends Group {
     //
     // Our width is set to the width determined by stacking our children horizontally.
     protected override _doLocalSizing() : void {
-        //=== YOUR CODE HERE ===max};
+        //=== YOUR CODE HERE ===};
+        let sum_min = 0;
+        let sum_nat = 0;
+        let sum_max = 0;
+
+        let height_max = 0;
+        let height_nat = 0;
+        let height_min = 0;
+
+        for(let child of this.children){
+            // get the sum of all children mins, maxes, naturals
+            sum_min += child.wConfig.min;
+            sum_nat += child.wConfig.nat;
+            sum_max += child.wConfig.max;
+            //get maximum of the child mins, max of naturals, and max of mins
+            height_max = Math.max(height_max, child.hConfig.max);
+            height_nat = Math.max(height_nat, child.hConfig.nat);
+            height_min = Math.max(height_min, child.hConfig.min);
+        }
+        //now setting the wconfig and hconfing
+        this._wConfig = new SizeConfig(sum_nat, sum_min, sum_max);
+        this._hConfig = new SizeConfig(height_nat, height_min, height_max); 
     }
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -156,6 +177,14 @@ export class Row extends Group {
         let numSprings = 0; 
 
         //=== YOUR CODE HERE ===
+        for(let child of this.children){
+            if(child instanceof Spring){
+                numSprings++;
+            }else{
+                natSum += child.wConfig.nat;
+                availCompr += (child.wConfig.nat - child.wConfig.min);
+            }
+        }
 
         return [natSum, availCompr, numSprings];
     }
@@ -168,6 +197,17 @@ export class Row extends Group {
     // the space at the right of the row as a fallback strategy).
     protected _expandChildSprings(excess : number, numSprings : number) : void {
         //=== YOUR CODE HERE ===
+        //check if there is any child spring
+        if(numSprings>0){
+            let space = excess/numSprings;
+            for(let child of this.children){
+                if(child instanceof Spring){
+                    //allocate the horizontal space between springs
+                    child.w += space;
+                }
+            }
+        }
+        
     }
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -188,6 +228,16 @@ export class Row extends Group {
         // from the natural height of that child, to get the assigned height.
         for (let child of this.children) {
             //=== YOUR CODE HERE ===
+            //this is the space child can compress
+            let compress = child.wConfig.nat - child.wConfig.min;
+            //only need to go through child if there's room for child to compress 
+            //and it should not be spring
+            if(compress >0 && availCompr>0 && !(child instanceof Spring)){
+                let compression = (compress/availCompr) * shortfall;
+                //to make sure the updated child.w does not go below the min of child width
+                child.w = Math.max(child.wConfig.min, child.w-compression);
+            }
+
         }
 }
 
@@ -232,6 +282,23 @@ export class Row extends Group {
         // apply our justification setting for the vertical
 
         //=== YOUR CODE HERE ===
+        for (let child of this.children) {
+            //if child is aligned along top edge of its parent, we are all set
+            if(this._hJustification ==='top'){
+                child.y = 0;
+            // if center of child is aligned along center line of the parent, 
+            // its y coordinate is calculated by half og the space between parent's height 
+            // and child's hright 
+            }else if(this._hJustification ==='center'){
+                child.y = (this.h - child.h)/2;
+            // if child is aligned along bottom edge of the parent, its y coordinate is
+            // calculated by the space between parent's height and child's height
+            }else if(this._hJustification ==='bottom'){
+                child.y = this.h - child.h;
+            }
+        }
+    
+
     }
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

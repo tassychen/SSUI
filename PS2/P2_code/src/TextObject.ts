@@ -36,6 +36,13 @@ export class TextObject extends DrawnObjectBase {
     public get text() {return this._text;}
     public set text(v : string) {
         //=== YOUR CODE HERE ===
+        //check if need to redraw
+        if(!(this._text === v)){
+            this._text =v;
+            this._recalcSize();
+            this.damageAll();
+
+        }
     }
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -68,6 +75,13 @@ export class TextObject extends DrawnObjectBase {
     public get font() {return this._font;}
     public set font(v : string) {
         //=== YOUR CODE HERE ===
+        //check if need to redraw
+        if(!(this._font === v)){
+            this._font = v;
+            //recalculate if the object fits the new text
+            this._recalcSize();
+            this.damageAll();
+        }
     }  
     
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -80,6 +94,14 @@ export class TextObject extends DrawnObjectBase {
     public set padding(v : SizeLiteral | number) {
         if (typeof v === 'number') v = {w:v, h:v};
         //=== YOUR CODE HERE ===
+        //check if width/height of padding for sizeliteral changed
+        if(!(this._padding.w === v.w)|| !(this._padding.h != v.h)){
+            this._padding = v;
+            //recalculate if the object fits the new text
+            this._recalcSize();
+            this.damageAll()
+
+        }
     }
     
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -105,12 +127,24 @@ export class TextObject extends DrawnObjectBase {
     //-------------------------------------------------------------------
 
     // Recalculate the size of this object based on the size of the text
+    // to determine a text size by width
     protected _recalcSize(ctx? : DrawContext) : void {
         //=== YOUR CODE HERE ===
+        //check if a ctx can be used
+        if(!ctx){
+            ctx = this._findDrawContext();
+        }
+        let txtSize = this._measureText(this.text, this.font, ctx);
+        //build the object, remember the padding(text is centered)
+        this.size = {w: txtSize.w + this._padding.w *2, h: txtSize.h + this._padding.h *2};
+
+
 
         // set the size configuration to be fixed at that size
-        this.wConfig = SizeConfig.fixed(this.w);
-        this.hConfig = SizeConfig.fixed(this.h);
+        // this.wConfig = SizeConfig.fixed(this.w);
+        // this.hConfig = SizeConfig.fixed(this.h);
+        this.wConfig = SizeConfig.fixed(this.size.w);
+        this.hConfig = SizeConfig.fixed(this.size.h);
     }
     
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -134,6 +168,27 @@ export class TextObject extends DrawnObjectBase {
             }
             
             //=== YOUR CODE HERE ===
+            //filltext: add the padding with the height of the text so the text is on the
+
+            //get baseline
+            let TXTmeasure = this._measureText(this.text, this.font, ctx);
+
+            if(this.renderType === "fill"){
+                //filled text characters
+                ctx.fillStyle = clr;
+                ctx.fillText(this.text, this.padding.w, TXTmeasure.baseln +this.padding.h);
+            }else if(this.rederType ==='stroke'){
+                //outline of charactors
+                ctx.strokeStyle = clr;
+                ctx.strokeText(this.text, this.padding.w, TXTmeasure.baseln +this.padding.h);
+
+            }
+            
+
+
+            //fillstyle = clr;
+            //check if rendertype === "fill"
+            // ctx.fillText(this.text, this.padding.w, TXTmeasure.baseln +this.padding.h);
 
         }   finally {
             // restore the drawing context to the state it was given to us in

@@ -107,12 +107,17 @@ export class DrawnObjectBase {
     protected _x : number = 0;
     public get x() : number {return this._x;}  
     public set x(v : number) {
-        if (v !== this.x) {
+        //i edit this.x to this._x
+        if (!(v === this._x)){
 
              // don't forget to declare damage whenever something changes
              // that could affect the display
 
             //=== YOUR CODE HERE ===
+            //set _x to v if x position has been altered
+            this._x = v;
+            //call damageall, need to redraw
+            this.damageAll();
         }
     }    
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -122,6 +127,13 @@ export class DrawnObjectBase {
     public get y() : number {return this._y;}
     public set y(v : number) {
         //=== YOUR CODE HERE ===
+        //set _y to v if y position has changed 
+        if(!(this._y === v)){
+            this._y = v;
+            //call damageall, need to redraw
+
+            this.damageAll();
+        }
     }
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -139,7 +151,14 @@ export class DrawnObjectBase {
     protected _w : number = 42;
     public get w() : number {return this._w;}
     public set w(v : number) {
-            //=== YOUR CODE HERE ===
+        //=== YOUR CODE HERE ===
+        //need to check if the object has its width altered
+        //if altered, need to set _w to v
+        if(!(this._w === v)){
+            this._w = v;
+            this.damageAll();
+        }
+        
     }
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -149,6 +168,13 @@ export class DrawnObjectBase {
     public get wConfig() : SizeConfigLiteral {return this._wConfig;}
     public set wConfig(v : SizeConfigLiteral) {
         //=== YOUR CODE HERE ===
+        //check if nat, max, or min size of the configuration changed
+        //if so, need to assign those to the sizing configurations v
+        if(this._wConfig.nat !== v.nat || this._wConfig.min !== v.min || this.wConfig.max !== v.max){
+            this._wConfig = v;
+            //always remember to call damage if sizing configuration has changed
+            this.damageAll();
+        }
     }
         
     public get naturalW() : number {return this._wConfig.nat;}
@@ -174,6 +200,14 @@ export class DrawnObjectBase {
     public get h() : number {return this._h;}
     public set h(v : number) {
         //=== YOUR CODE HERE ===
+        //need to check if the object has its height altered
+        //if altered, need to set _h to v
+        if(!(this._h ===v)){
+            this._h = v;
+            this.damageAll();
+
+
+        }
     }
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -183,6 +217,12 @@ export class DrawnObjectBase {
     public get hConfig() : SizeConfigLiteral {return this._hConfig;}
     public set hConfig(v : SizeConfigLiteral) {
         //=== YOUR CODE HERE ===
+        //check if nat, max, or min size of the height configuration changed
+        //if so, need to assign those to the sizing configurations v
+        if(this._hConfig.nat !== v.nat || this._hConfig.min !== v.min || this._hConfig.max !== v.max){
+            this._hConfig = v;
+            this.damageAll();
+        }
     }
 
     public get naturalH() : number {return this._hConfig.nat;}
@@ -216,8 +256,14 @@ export class DrawnObjectBase {
     public get visible() : boolean {return this._visible;}
     public set visible(v : boolean) {
             //=== YOUR CODE HERE ===
-    }
-
+            //if the visibility of the object changed
+            //even though its size and position does not change
+            //we need to redraw the area where the object is located at
+            if (this._visible !== v) {
+                this._visible = v;
+                this.damageAll();
+            }
+        }
     //-------------------------------------------------------------------
     // Child list maintenance 
     //-------------------------------------------------------------------
@@ -311,7 +357,7 @@ export class DrawnObjectBase {
         const indx = this.findChild(child);
         if (indx === -1) return false;
         return this.detachChildAt(indx) ? true: false;
-    }
+    } 
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
 
@@ -441,6 +487,14 @@ export class DrawnObjectBase {
                      clipx : number, clipy : number, clipw : number, cliph : number) 
     {
         //=== YOUR CODE HERE ===
+        //note to myself: always closepath(): make sure the pen has lifted above the canvas 
+
+        // draw the rectangle to restrict the drawing area
+        ctx.beginPath();
+        ctx.rect(clipx,clipy,clipw, cliph);
+        ctx.clip();
+        ctx.closePath();
+
     }
 
     // Utility routine to create a new rectangular path at our bounding box.
@@ -506,6 +560,21 @@ export class DrawnObjectBase {
         ctx.save();
 
         //=== YOUR CODE HERE ===
+        //assign child object from the children array
+        let child = this.children[childIndx];
+
+        // translate first: translate the orgion to child's coordinate
+        ctx.translate(child.x, child.y);
+        // applyclipping (0,0): apply clipping to child's boundary box, 
+        // now child has coordinate (0,0)
+        this.applyClip(ctx,0,0,child.w, child.h);
+
+        //test
+        console.log("child: ", child);
+        //test end here
+        //each ctx.save() requires one ctx.restore()
+        ctx.restore();
+
     }
 
     
@@ -633,6 +702,19 @@ export class DrawnObjectBase {
     // our parent.
     public damageArea(xv: number, yv : number, wv : number, hv : number) : void {
         //=== YOUR CODE HERE ===
+       
+        //noting the area is damaged
+        console.log(`Marking damaged area: ${xv}, ${yv}, ${wv}, ${hv}`);
+
+        // recrusively passing the message to the root of tree
+        if (this.parent) {
+            //to find the adsolute cooridinate for the damaged area relative to the 
+            //parent's coordinate system
+            const ptX = this.x + xv;
+            const ptY = this.y + yv;
+            this.parent.damageArea(ptX, ptY, wv, hv);
+        }
+
     }
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -657,6 +739,19 @@ export class DrawnObjectBase {
                                wv : number, hv: number) : void 
     {
             //=== YOUR CODE HERE ===
+            //transition to the coordinate system of the parent:
+            const dmgx = child.x + xInChildCoords;
+            const dmgy = child.y + yInChildCoords;
+            //clipping the damaged area(damage is inside of the parent component)
+            const validwidth = Math.min(this.w - dmgx, wv);
+            const validheight = Math.min(this.h - dmgy, hv);
+            //if damage is inside of the bound,report to parent/root
+            if(validwidth > 0 && validheight>0){
+                if(this.parent){
+                    this.parent._damageFromChild(this, dmgx, dmgy, validwidth, validheight);
+                }
+                
+            }
     }
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
