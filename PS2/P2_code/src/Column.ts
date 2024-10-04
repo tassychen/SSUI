@@ -87,7 +87,7 @@ export class Column extends Group {
     // Our width min is set to hold all the children at their min size (the maximum
     // of the child mins).  Our natural size is set to hold all the children at their
     // natural sizes (the maximum of child naturals).  Finally our max is set to the 
-    // minimum of the child maximums.
+    // maximum of the child maximums.
     //
     // Our height is set to the height determined by stacking our children vertically.
     protected override _doLocalSizing() : void {

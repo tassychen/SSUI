@@ -102,6 +102,11 @@ export class TextObject extends DrawnObjectBase {
             //filltext: add the padding with the height of the text so the text is on the
             //get baseline
             let TXTmeasure = this._measureText(this.text, this.font, ctx);
+            // set text properties
+            ctx.font = this.font;
+            ctx.textAlign = 'start';
+            ctx.textBaseline = 'alphabetic';
+            ctx.direction = 'ltr';
             if (this.renderType === "fill") {
                 //filled text characters
                 ctx.fillStyle = clr;

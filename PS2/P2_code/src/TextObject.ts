@@ -172,6 +172,11 @@ export class TextObject extends DrawnObjectBase {
 
             //get baseline
             let TXTmeasure = this._measureText(this.text, this.font, ctx);
+            // set text properties
+            ctx.font = this.font;
+            ctx.textAlign = 'start';
+            ctx.textBaseline = 'alphabetic';
+            ctx.direction = 'ltr';
 
             if(this.renderType === "fill"){
                 //filled text characters

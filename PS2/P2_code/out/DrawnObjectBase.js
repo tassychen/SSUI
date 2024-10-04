@@ -168,8 +168,13 @@ export class DrawnObjectBase {
         //=== YOUR CODE HERE ===
         //need to check if the object has its width altered
         //if altered, need to set _w to v
-        if (!(this._w === v)) {
-            this._w = v;
+        // if(!(this._w === v)){
+        //     this._w = v;
+        //     this.damageAll();
+        // }
+        let neww = SizeConfig.withinConfig(v, this._wConfig);
+        if (!(this._w === neww)) {
+            this._w = neww;
             this.damageAll();
         }
     }
@@ -178,7 +183,8 @@ export class DrawnObjectBase {
         //=== YOUR CODE HERE ===
         //check if nat, max, or min size of the configuration changed
         //if so, need to assign those to the sizing configurations v
-        if (this._wConfig.nat !== v.nat || this._wConfig.min !== v.min || this.wConfig.max !== v.max) {
+        // if(this._wConfig.nat !== v.nat || this._wConfig.min !== v.min || this.wConfig.max !== v.max){
+        if (!(SizeConfig.eq(this._wConfig, v))) {
             this._wConfig = v;
             //always remember to call damage if sizing configuration has changed
             this.damageAll();
@@ -203,8 +209,13 @@ export class DrawnObjectBase {
         //=== YOUR CODE HERE ===
         //need to check if the object has its height altered
         //if altered, need to set _h to v
-        if (!(this._h === v)) {
-            this._h = v;
+        // if(!(this._h ===v)){
+        //     this._h = v;
+        //     this.damageAll();
+        // }
+        let newh = SizeConfig.withinConfig(v, this._hConfig);
+        if (!(this._h === newh)) {
+            this._h = newh;
             this.damageAll();
         }
     }
@@ -493,6 +504,9 @@ export class DrawnObjectBase {
         //assign child object from the children array
         let child = this.children[childIndx];
         // translate first: translate the orgion to child's coordinate
+        //test
+        ctx.resetTransform();
+        //test end
         ctx.translate(child.x, child.y);
         // applyclipping (0,0): apply clipping to child's boundary box, 
         // now child has coordinate (0,0)
