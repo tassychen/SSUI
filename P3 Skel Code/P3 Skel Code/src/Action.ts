@@ -15,7 +15,7 @@ import { Check } from "./Check.js";
 //   - set_image    set the image of the given region (or rather where it is to be 
 //                  loaded from) based on the parameter value.  The parameter can be 
 //                 "" for no image (which has the same effect as clear_image).
-//   - clear_image set the image of the given region to empty/none. 
+//   - clear_imagg be set the image of the given region to empty/none. 
 //   - none        do nothing (also used to patch up things loaded from bad json)
 //   - print       print the parameter value
 //   - print_event print the parameter value followed by a dump of the current event 
@@ -81,9 +81,45 @@ export class Action {
     // Carry out the action represented by this object.  evtType and evtReg describe
     // the event which is causing the action (for use by print_event actions).
     public execute(evtType : EventType, evtReg? : Region) { 
+        
         if (this._actType === 'none') return;
+
         
         // **** YOUR CODE HERE ****
+        //set_image means setting the location of the region(load image)
+        if(this._actType === "set_image"){
+            
+            if(this._onRegion){
+                //try to load image getting location of image from this.param
+                this._onRegion.imageLoc = this.param;
+            
+            }
+        }else if(this._actType === "clear_image"){
+            //erease the image
+            if(this._onRegion){
+                this._onRegion.imageLoc = "";
+            }
+        }else if (this._actType === "print"){
+            //print param string
+            console.log(`${this._param}`);
+
+        }else if(this._actType === "print_event"){
+            // only print when action is print_event and no need to print if the current region 
+            // is outside of legit regions
+
+            
+            let event_dump = "";
+            //here break to two situations: one with region, one without
+            if(evtReg){
+                event_dump =  evtType + "("+ evtReg.name + ")";
+            }else{
+                event_dump =  evtType + "("+ "undefined" + ")";
+
+            }
+
+            console.log(`${this._param}${event_dump}`);
+            // this.dump();
+        }
     }
 
      //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -93,15 +129,30 @@ export class Action {
     public bindRegion(regionList : readonly Region[]) : void {
             
         // **** YOUR CODE HERE ****
-        
+     
+        //reset the onregion, make sure _onRegion have the most updated region
+
+        // assign the last matched region object in regionlist to this._onRegion
+        for(const reg of regionList){ 
+
+            if(this._onRegionName === reg.name){
+                this._onRegion = reg;
+                return;
+            }
+
+                
+            
+        }
+  
         // ok to have no matching region for some actions
         if (this.actType === 'none' || this.actType === 'print' || 
                                        this.actType === 'print_event') {
             this._onRegion = undefined;
             return;
         }
-        
+      
         Err.emit(`Region '${this._onRegionName}' in action does not match any region.`);
+        
     }
    
     //-------------------------------------------------------------------
@@ -122,9 +173,6 @@ export class Action {
 
         // produce the indent
         for (let i = 0; i < indent; i++) result += indentStr;
-
-        // main display
-        result += `${this.actType} ${this.onRegionName} "${this.param}"`;
 
         // possible warning about an unbound region
         if (!this.onRegion && this.actType !== 'none' && 

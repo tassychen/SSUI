@@ -91,22 +91,41 @@ export class Transition {
            
         // **** YOUR CODE HERE ****
 
+        //call match from event class
+        return this._onEvent.match(evtType, regn);
+
         // **** Remove this, it's just here to get this file to compile
-        return false;
+        // return false;
     }
     
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
     
     // Attempt to look up the name of the target state for this transition and 
-    // return the actual State object, then assign that to this._target.  _target
+    // then assign that to this._target.  _target
     // will remain undefined if the target name does not match any actual states in 
     // the FSM (in which case an error message will also be generted using Err.emit()).
     public bindTarget(stateList : readonly State[]) : void {
             
         // **** YOUR CODE HERE ****
+       
+        const current_target_state = this.targetName;
+        //assign the target state to the corresponding state
+        
+        //going through all the states'names looking for the state which supposed to be the 
+        //target state
+        //once found, assign that state to be the target state
+        for(const state of stateList){
+            if(state.name === current_target_state){
+                this._target = state;
+      
+                return;
+            }
+        }
 
         // no matching state name, so generate an error message
+   
         Err.emit(`State '${this._targetName}' in transition does not match any state.`);
+        
     }
    
     //-------------------------------------------------------------------

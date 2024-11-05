@@ -165,9 +165,13 @@ export class FSM {
     // object, eventually causing a redraw to be performed.  
     // 
     public damage() : void {
-            
         // **** YOUR CODE HERE ****
-
+        // passing damage message up to the root
+        // FSMInteractor will handle this redraw notification
+        // then ROOT will do redraw operation
+        if(this._parent){
+            this._parent.damage();
+        }
     }
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
@@ -176,20 +180,53 @@ export class FSM {
     // various parts making up this FSM.  This includes for example, looking up 
     // region and state names and linking in (binding) the corresponding actual objects.  
     protected _finalize() : void {
-        // establish actual objects corresponding to textual names:
+        // establish actual objects corresponding to textual names(in strings):
         // names we need to look up / bind are found in transitions: in named target 
         // state, region names in event specs, and region names in actions.
         // walk over all the transitions in all the states to get those bound
-            
-        // **** YOUR CODE HERE ****
-
+         
         // start state is the first one
+        
+        // **** YOUR CODE HERE ****
+
+        // keep track on which state we are on right now
+        if(this.states.length>0){
+            this._currentState = this._startState;
+        }
+
+        // **** YOUR CODE HERE ****
+        
+
+        //binding actions, transitions(target states + regions)
+        for(const state of this.states){
+            for (const trans of state.transitions){
+                //find target state object and bind target state here
+                trans.bindTarget(this.states);
+                //bind regions here
+                trans.onEvent.bindRegion(this.regions);
+                for(const act of trans.actions){
+                    //binding actions in transitions here
+                    act.bindRegion(this.regions);
+                }
+            }
+            
+        }
+
+
+        
+
             
         // **** YOUR CODE HERE ****
 
-        // need to link all regions back to this object as their parent
-            
-        // **** YOUR CODE HERE ****
+        //Q: use this.regions than this._regions just because the first one is readyonly?
+        //_ for local context, private
+        //no_ for readonly, globle
+
+        //loop through all the regions
+        //link region to parent
+        for(const reg of this.regions){
+            reg.parent = this;
+        }
 
     }
     
@@ -200,6 +237,8 @@ export class FSM {
     public reset() {
             
         // **** YOUR CODE HERE ****
+        //resetting
+        this._currentState = this._startState;
     }
     
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
@@ -207,14 +246,27 @@ export class FSM {
     // Cause the FSM to act on the given event: represented by an event type (see 
     // EventType declared with the EventSpec class) and a region (when the event type
     // needs one).  This method attempts to make one transition in the FSM.  The first
-    // transition matching the given event is found, the transitin is "taken" (it's 
+    // transition matching the given event is found, the transition is "taken" (it's 
     // actions are executed, and the FSM moves to the indicated state).  At that point
     // the event is considered "consumed", and no additional transitions are considered.
     public actOnEvent(evtType : EventType, reg? : Region) {
         // if we never got the current state bound (maybe a bad json FSM?) bail out
-        if (!this.currentState) return;
+        if (!this._currentState) return;
            
         // **** YOUR CODE HERE ****
+        // loop through FSM to see if the event name in FSM matches transition's 
+        // event's name/region name
+        // when matched, execute the transition
+        // return when event is handled.
+
+        for(const trans of this._currentState?.transitions){
+            if(trans.match(evtType,reg)){
+                trans.actions.forEach(action => action.execute(evtType, reg));
+                //move to the next state in FSM
+                this._currentState = trans.target;
+                return;
+            }
+        }
 
     }
       

@@ -74,7 +74,23 @@ export class Root {
         try {
 
         // **** YOUR CODE HERE ****
+        let ctx = this.canvasContext;
 
+        //loop through the children 
+
+            
+            this._children.forEach((child) =>{
+                //save the canvas so later come back
+                ctx.save();
+                //translate to child coordinate
+                ctx.translate(child.x, child.y);
+                child.draw(this.canvasContext);
+                //restore the canvas
+                ctx.restore();
+                
+            })
+            
+            
         // currently, for ease of debugging, we let exceptions propogate out from this 
         // redraw (and typically all the out of our code).  this will basically shut 
         // down the whole system and preclude further action.  if recovery from 

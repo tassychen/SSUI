@@ -17,6 +17,7 @@ import { Root } from "./Root.js";
 import { FSM, FSM_json } from "./FSM.js";
 import { Region } from "./Region.js";
 import { Err } from "./Err.js";
+import { visitLexicalEnvironment } from "../../../../../../../../node_modules/typescript/lib/typescript.js";
 
 //===================================================================
 // Class for an interactive object controlled by a finite state machine (FSM).
@@ -35,6 +36,7 @@ import { Err } from "./Err.js";
 //=================================================================== 
 
 export class FSMInteractor {
+    
     constructor(
             fsm     : FSM | undefined = undefined,
             x       : number = 0,
@@ -45,6 +47,7 @@ export class FSMInteractor {
         this._x = x; this._y = y;
         this._parent = parent;
         if (fsm) fsm.parent = this;
+        this.lastPickedRegions = [];
     }
 
     //-------------------------------------------------------------------
@@ -58,6 +61,13 @@ export class FSMInteractor {
     public set x(v : number) {
           
         // **** YOUR CODE HERE ****
+        //check if the postion x of the object changed, if so, redraw
+        if(!(this._x===v)){
+            this._x = v;
+            this.damage();
+        }
+
+    
     }
 
     // Y position (top) of this object within the parent Root object (and containing 
@@ -67,6 +77,12 @@ export class FSMInteractor {
     public set y(v : number) {
             
         // **** YOUR CODE HERE ****
+        //check if the postion y of the object changed, if so, redraw
+
+        if(!(this._y === v)){
+            this._y = v;
+            this.damage();
+        }
     }
 
     // Position treated as a single value
@@ -78,19 +94,45 @@ export class FSMInteractor {
         if ((v.x !== this._x) || (v.y !== this._y)) {
             this._x = v.x;
             this._y = v.y;
-            this.parent?.damage;
+            this.parent?.damage();
         }
     }
+    //here add another property to keep track of the lastPickedRegions for dispatchrawevent()
+    private lastPickedRegions : Region[];
     
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
     // The parent Root object that hosts this object (and serves as a link to the 
     // underlying HTML canvas) 
+    //here to manage the relationship between the interactor and root
     protected _parent : Root | undefined;
     public get parent() {return this._parent;}
     public set parent(v : Root | undefined) {
+        //root is a graphical container
+        //when parent is undefined, only means the object cannot be displayed/mannupulated
+        //by the inputs on the html
             
         // **** YOUR CODE HERE ****
+        //update the internal reference of parent
+        if(!(this._parent === v)){
+            //remove the child from old parent
+            //if new parent is different from the existing one
+            if(this._parent){
+                this._parent?.removeChild(this);
+                //redraw
+                this.damage();
+            }
+            this._parent = v;
+            //add this object to the updated(new) parent
+            if(this._parent){
+                this._parent?.addChild(this);
+                //redraw
+                this.damage();
+            }
+            
+            
+        }
+        
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -111,6 +153,12 @@ export class FSMInteractor {
     public damage() {
            
         // **** YOUR CODE HERE ****
+        // call damage() in root class
+        if(this.parent){
+            this.parent.damage();
+        }
+
+
     }
     
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -124,6 +172,19 @@ export class FSMInteractor {
         if (!this.fsm) return;
 
         // **** YOUR CODE HERE ****
+
+        //looping through all the regions and call to redraw each region
+        for(const reg of this.fsm.regions){
+            //save canvas
+            ctx.save();
+            //regional translation
+            ctx.translate(reg.x, reg.y);
+            //set the debugging mode on
+            showDebugging = true;
+            reg.draw(ctx,showDebugging);
+            //change canvas back to origonal state
+            ctx.restore();
+        }
     }   
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -140,9 +201,23 @@ export class FSMInteractor {
         let pickList :Region[] = [];
 
         // if we have no FSM, there is nothing to pick
-        if (!this.fsm) return pickList;
+        if (!this._fsm) return pickList;
            
         // **** YOUR CODE HERE ****
+        
+
+        //loop through regions
+        for(const reg of this._fsm.regions){
+            //check if point in regions
+            if(localX >= reg.x && localX<= reg.x + reg.w){
+                if(localY >= reg.y && localY <= reg.y + reg.h){
+                    //add the region with point in it to the picklist
+                    pickList.push(reg);
+                }
+            }
+        }
+        //reverse the list
+        pickList = pickList.reverse();
 
         return pickList;
     }
@@ -177,6 +252,48 @@ export class FSMInteractor {
         if (this.fsm === undefined) return;
 
         // **** YOUR CODE HERE ****
+        //use pick to see what regions are affected by the event
+        const currentlist = this.pick(localX, localY);
+        //need to keep track on the last picked regions
+        const prevlist = this.lastPickedRegions;
+
+        // keep track of exit and enter
+        // to dispatch the enter event, the region should not be in the prev entetred region list
+        // while being in the current region list
+        // to dispatch the exit event, the region should  be in the prev entetred region list
+        // while not being in the current region list 
+        const enter_region = currentlist.filter(r => !prevlist.includes(r));
+        const exit_region = prevlist.filter(r=> !currentlist.includes(r));
+        // for enter regions, the region should not be in the existed 
+        //handle exit before enter and move_inside
+
+        //dispatch exit events in exit regions
+        exit_region.forEach(region => this.fsm?.actOnEvent("exit", region));
+        //dispatch enter events in enter regions
+        enter_region.forEach(region => this.fsm?.actOnEvent("enter", region));
+        //move_inside event dispatch for all the currentlist
+        currentlist.forEach(reg =>{
+            switch(what){
+                case "move":
+                    this.fsm?.actOnEvent("move_inside", reg);
+                    break;
+                case "press":
+                    this.fsm?.actOnEvent("press", reg);
+                    break;
+                case "release":
+                    this.fsm?.actOnEvent("release", reg);
+                    break;
+                    
+            }
+        })
+        // special checking for release none: when there is no region
+        if (what ==="release" && currentlist.length === 0){
+            this.fsm.actOnEvent("release_none");
+        }
+        //clear the prevlist, set prevlist to the old currentlist
+
+        this.lastPickedRegions = currentlist;
+
     }
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

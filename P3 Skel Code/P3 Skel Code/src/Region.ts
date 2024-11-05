@@ -93,6 +93,12 @@ export class Region {
     public set x(v : number) {
             
         // **** YOUR CODE HERE ****
+        //call damage if this._x is damaged
+        if(!(this._x === v)){
+            this._x = v;
+            this.damage();
+        }
+
     }
        
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
@@ -103,6 +109,12 @@ export class Region {
     public set y(v : number) {
             
         // **** YOUR CODE HERE ****
+        //call damage if this._y is damaged
+
+        if(!(this._y === v)){
+            this._y = v;
+            this.damage();
+        }
     }   
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
@@ -114,6 +126,12 @@ export class Region {
     public set w(v : number) {
             
         // **** YOUR CODE HERE ****
+        //call damage if this._w is damaged
+
+        if(!(this._w === v)){
+            this._w = v;
+            this.damage();
+        }
     }  
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
@@ -125,6 +143,12 @@ export class Region {
     public set h(v : number) {
             
         // **** YOUR CODE HERE ****
+        //call damage if this._h is damaged
+
+        if(!(this._h === v)){
+            this._h = v;
+            this.damage();
+        }
     }  
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
@@ -156,6 +180,13 @@ export class Region {
     public set parent(v : FSM | undefined) {
             
         // **** YOUR CODE HERE ****
+        if(!(this._parent === v)){
+            //tell current parent to erease this child by calling damage
+            this.damage();
+            this._parent = v;
+            //tell new parent to add this child by calling damage
+            this.damage();
+        }
     }
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -219,14 +250,25 @@ export class Region {
     public pick(localX : number, localY : number) : boolean {
             
         // **** YOUR CODE HERE ****
-        
+        //translate the coordinate: (0,0) to be the top left corner of the region
+        const newx = localX - this.x;
+        const newy = localY - this.y;
+      
+
+        //check if the given point is in the region
+        if(newx >= 0 && newx<= this.w
+            && newy >= 0 && newy <= this.h){
+                return true;
+            }
+
+      
         // **** Remove this, it's just here to make this compile as-is
         return false;
     }
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-    // Draw the image for this region using the givn drawing context.  The context 
+    // Draw the image for this region using the given drawing context.  The context 
     // should be set up in the local coordinate system of the region (so 0,0 appears
     // at this.x, this.y in the parent canvas).  If the image to be drawn is empty or
     // not yet loaded, or had an error loading, then drawing of the image will not
@@ -237,6 +279,18 @@ export class Region {
         if (this.loaded && !this.loadError && this.image) {
                
             // **** YOUR CODE HERE ****
+            ctx.save();
+            
+            //has to clear images 
+            ctx.clearRect(0,0, this._w, this._h);
+            // draw image 
+            
+            ctx.drawImage(this.image, 0, 0);
+ 
+            //restore the context
+            ctx.restore();
+            
+
 
         }
         
@@ -257,6 +311,10 @@ export class Region {
     public damage() {
             
         // **** YOUR CODE HERE ****
+        //tell its parent(FSM) the damage
+        if(this.parent){
+            this.parent.damage();
+        }
     }
 
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
