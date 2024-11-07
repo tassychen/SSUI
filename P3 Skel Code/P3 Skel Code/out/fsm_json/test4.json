@@ -1,0 +1,76 @@
+{
+    "regions": [
+        { "name": "dough", "x": 1140, "y": 350, "imageLoc": "./images/dough.png" },
+        { "name": "sauce", "x": 580, "y": 350, "imageLoc": "./images/sauce.png" },
+        { "name": "cheese", "x": 20, "y": 350, "imageLoc": "./images/cheese.png" },
+        { "name": "toppings", "x": 860, "y": 350, "imageLoc": "./images/toppings.png" },
+        { "name": "baked", "x": 300, "y": 350, "imageLoc": "./images/baked.png" }
+
+
+    ],
+    "states": [
+        {
+            "name": "start",
+            "transitions": [
+                {
+                    "onEvent": { "evtType": "press", "region": "dough" },
+                    "target": "doughAdded",
+                    "actions": [
+                        { "act": "set_image", "region": "dough", "param": "./images/dough_active.png" }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "doughAdded",
+            "transitions": [
+                {
+                    "onEvent": { "evtType": "press", "region": "sauce" },
+                    "target": "sauceAdded",
+                    "actions": [{ "act": "set_image", "region": "sauce", "param": "./images/sauce_active.png" }]
+                }
+            ]
+        },
+        {
+            "name": "sauceAdded",
+            "transitions": [
+                {
+                    "onEvent": { "evtType": "press", "region": "cheese" },
+                    "target": "cheeseAdded",
+                    "actions": [{ "act": "set_image", "region": "cheese", "param": "./images/cheese_active.png" }]
+                }
+            ]
+        },
+        {
+            "name": "cheeseAdded",
+            "transitions": [
+                {
+                    "onEvent": { "evtType": "press", "region": "toppings" },
+                    "target": "toppingsAdded",
+                    "actions": [{ "act": "set_image", "region": "toppings", "param": "./images/toppings_active.png" }]
+                }
+            ]
+        },
+        {
+            "name": "toppingsAdded",
+            "transitions": [
+                {
+                    "onEvent": { "evtType": "press", "region": "baked" },
+                    "target": "start",
+                    "actions": [
+                        { "act": "set_image", "region": "toppings", "param": "./images/baked_active.png"},
+                        { "act": "set_image", "region": "baked", "param": "./images/great_chef.png" },
+                        { "act": "set_image", "region": "dough", "param": "./images/great_chef.png" },
+                        { "act": "set_image", "region": "sauce", "param": "./images/great_chef.png" },
+                        { "act": "set_image", "region": "cheese", "param": "./images/great_chef.png" },
+                        { "act": "set_image", "region": "toppings", "param": "./images/great_chef.png" },
+                        { "act": "set_image", "region": "baked", "param": "./images/great_chef.png" }
+                       
+                    ]
+                }
+            ]
+        }
+      
+       
+    ]
+}

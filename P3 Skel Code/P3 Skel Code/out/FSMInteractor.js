@@ -263,6 +263,7 @@ export class FSMInteractor {
             this.damage();
         });
     }
-} // end class FSMInteractor 
+}
+// end class FSMInteractor 
 //===================================================================
 //# sourceMappingURL=FSMInteractor.js.map

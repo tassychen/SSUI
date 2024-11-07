@@ -189,6 +189,8 @@ export class Region {
         }
     }
 
+   
+
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
     // The location the image of this object should be loaded from.  For example:
@@ -275,6 +277,9 @@ export class Region {
     // be attempted.  If the showDebugFrame parameter is passed true, a frame is drawn
     // around the (input) bounds of the region for debugging purposes.
     public draw(ctx : CanvasRenderingContext2D, showDebugFrame : boolean = false) : void {
+        // //this line is for test4()
+        // if (!this.visible) return;
+
         // if we have a valid loaded image, draw it
         if (this.loaded && !this.loadError && this.image) {
                
@@ -411,7 +416,11 @@ export class Region {
     protected static _cacheImage(imageLoc : string, img : HTMLImageElement | undefined) {
         Region._imageCache.set(imageLoc, img);
     }
-     
+    //-------------------------------------------------------------------
+    // helper functions for test4()
+    //-------------------------------------------------------------------
+   
+    
     //-------------------------------------------------------------------
     // Debugging Support
     //-------------------------------------------------------------------

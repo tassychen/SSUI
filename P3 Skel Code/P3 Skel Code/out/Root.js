@@ -5,7 +5,7 @@
 // damage notifications from, arranges to be drawn, and dispatches input to.
 //===================================================================
 export class Root {
-    constructor(canvasID) {
+    constructor(canvasID, width = 1500, height = 900) {
         // Whether we request extra debugging output when our child objects are 
         // drawn.  This defaults to false, but setting it true will provide additional
         // output that makes understanding and debugging FSM behavior easier (but is not 
@@ -30,6 +30,8 @@ export class Root {
         // get the canvas object we will draw on and set our w/h to match that
         this._canvasContext = this._getCanvasContext(canvasID);
         this._owningCanvas = this._canvasContext.canvas;
+        this._owningCanvas.width = width;
+        this._owningCanvas.height = height;
         // setup canvas input callbacks
         this._setupCanvasInputHandlers();
     }
@@ -213,6 +215,40 @@ export class Root {
         if (!ctx || !isCanvasRenderingContext2D(ctx))
             throw new Error(`Can't get rendering context for canvas element with id:"${canvasID}"`);
         return ctx;
+    }
+    //helper func for test4()
+    createStaticInstructionText() {
+        const existingElement = document.getElementById('instructionText');
+        if (!existingElement) {
+            const textElement = document.createElement('div');
+            const note1 = document.createElement('div');
+            const note2 = document.createElement('div');
+            note1.id = 'noteText1';
+            textElement.id = 'instructionText';
+            note2.id = 'noteText2';
+            note1.textContent = '**Remember to comment out test1, test2 and test3 to implement test4**';
+            textElement.textContent = 'Click on Images in Right Order to Make Your Own Pizza!';
+            note2.textContent = '**Refresh to restart';
+            document.body.appendChild(textElement);
+            document.body.appendChild(note1);
+            document.body.appendChild(note2);
+            //style text
+            textElement.style.fontSize = '50px';
+            textElement.style.color = 'blue';
+            textElement.style.textAlign = 'center';
+            textElement.style.position = 'relative';
+            textElement.style.top = '-700px'; // shift up
+            note1.style.fontSize = '14px';
+            note1.style.color = 'grey';
+            note1.style.textAlign = 'center';
+            note1.style.position = 'relative';
+            note1.style.top = '-680px';
+            note2.style.fontSize = '14px';
+            note2.style.color = 'grey';
+            note2.style.textAlign = 'center';
+            note2.style.position = 'relative';
+            note2.style.top = '-670px';
+        }
     }
 } // end class Root
 //===================================================================

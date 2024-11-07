@@ -150,6 +150,8 @@ export class Region {
     // be attempted.  If the showDebugFrame parameter is passed true, a frame is drawn
     // around the (input) bounds of the region for debugging purposes.
     draw(ctx, showDebugFrame = false) {
+        // //this line is for test4()
+        // if (!this.visible) return;
         // if we have a valid loaded image, draw it
         if (this.loaded && !this.loadError && this.image) {
             // **** YOUR CODE HERE ****
@@ -260,6 +262,9 @@ export class Region {
     static _cacheImage(imageLoc, img) {
         Region._imageCache.set(imageLoc, img);
     }
+    //-------------------------------------------------------------------
+    // helper functions for test4()
+    //-------------------------------------------------------------------
     //-------------------------------------------------------------------
     // Debugging Support
     //-------------------------------------------------------------------

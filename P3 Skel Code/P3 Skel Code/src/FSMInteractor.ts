@@ -41,13 +41,16 @@ export class FSMInteractor {
             fsm     : FSM | undefined = undefined,
             x       : number = 0,
             y       : number = 0,
-            parent? : Root)
+            parent? : Root
+            
+        )
     {
         this._fsm = fsm;
         this._x = x; this._y = y;
         this._parent = parent;
         if (fsm) fsm.parent = this;
         this.lastPickedRegions = [];
+    
     }
 
     //-------------------------------------------------------------------
@@ -134,6 +137,7 @@ export class FSMInteractor {
         }
         
     }
+  
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
     // The finite state machine that controls the behavior of this object
@@ -327,6 +331,11 @@ export class FSMInteractor {
          this.damage();
     }   
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-} // end class FSMInteractor 
+    
+} 
+
+
+
+// end class FSMInteractor 
 
 //===================================================================

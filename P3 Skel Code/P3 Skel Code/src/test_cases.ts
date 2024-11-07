@@ -28,6 +28,8 @@ export function runTests() {
 	test1();
 	test2();
 	test3();
+	//please comment out test1() to test3() to make some room for test4()
+	// test4();
 
 	console.log("Test is set up...");
 }
@@ -75,4 +77,15 @@ function test3() {
 	fsmInt.startLoadFromJson("./fsm_json/stick.json");
 }
 
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// Create object for test4 from test4.json file.
+function test4() {
+	//follow the instruction in text 
+	root.createStaticInstructionText();
+	let fsmInt = new FSMInteractor(undefined, 0,0);
+	root.addChild(fsmInt);
+	fsmInt.startLoadFromJson("./fsm_json/test4.json");
+
+}
 //-------------------------------------------------------------------

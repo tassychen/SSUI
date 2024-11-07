@@ -91,13 +91,16 @@ export class Action {
             
             if(this._onRegion){
                 //try to load image getting location of image from this.param
+                // console.log(`setting image ${this.param}`);
                 this._onRegion.imageLoc = this.param;
             
             }
         }else if(this._actType === "clear_image"){
             //erease the image
             if(this._onRegion){
+                // console.log(`removing image ${this.param} at region ${this._onRegionName}`);
                 this._onRegion.imageLoc = "";
+                
             }
         }else if (this._actType === "print"){
             //print param string
